@@ -1,0 +1,92 @@
+Lab01: Programming in a Linux Environment
+Jeremy Hunt
+9-8-14
+
+
+Part 1
+
+Q1. What were the arguments passed to the chmod command in (3)?
+
+chmod u=rwx,g=rx,o=x justifytext.py
+
+Q2. Copy-paste the directories in your path, and the contents of the directory where you placed the symbolic link as printed out by ls -l.
+
+Path:
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin: /usr/games:/usr/local/games
+
+Sym-Link in /usr/local/bin:
+total 16
+-rwxrwxr-x 1 root root 678 Jul 16 08:23 f2py
+lrwxrwxrwx 1 root root  62 Sep  8 23:56 justifytext -> /home/jeremy/ELEC_424/ELEC424-Lab01_Programming/justifytext.py
+-rwxr-xr-x 1 root root 296 Jul 16 08:58 nosetests
+-rwxr-xr-x 1 root root 304 Jul 16 08:58 nosetests-2.7
+
+Part 2
+
+Q3. What operations are done on the input integer?
+
+1. Make sure it is > 0
+  4006f9:	85 c0                	test   %eax,%eax
+  4006fb:	78 1a                	js     400717 <main+0x73>
+
+2. Make sure it is < 256
+  400710:	3d ff 00 00 00       	cmp    $0xff,%eax
+  400715:	7e 11                	jle    400728 <main+0x84>
+
+3. Shift input right one bit
+  400688:	d0 6d fc             	shrb   -0x4(%rbp)
+
+4. Mask off the lower 4 bits
+  40068b:	80 65 fc 0f          	andb   $0xf,-0x4(%rbp)
+
+5. Shift left by 4 bits (multiply by 16)
+  40068f:	c0 65 fc 04          	shlb   $0x4,-0x4(%rbp)
+
+6. If the result is > 128, clear the screen
+  40065a:	80 7d ec 80          	cmpb   $0x80,-0x14(%rbp)
+  40065e:	76 19                	jbe    400679 <CHECK+0x2c>
+
+Q4. What is the present bug, and under what conditions is it triggered? 
+
+The current bug is that if the result of the operation is >128, in addition
+to the screen being cleared, the program attempts to write to the first
+character string "error or not?", even though it is a constant string stored
+in non-user-writable memory. It is located here:
+  40066a:	48 c7 45 f8 fe 07 40 	movq   $0x4007fe,-0x8(%rbp)
+Where the string is stored at 0x4007fe, in the read-only data section of the
+executable (.rodata).
+
+Q5. What are possible ways to fix this bug?
+
+This bug could be fixed by removing the attempt to write to this string
+entirely (since it is otherwise not used) or by copying the read-only
+string to a writable buffer before attempting to write to the string.
+
+Part 3
+
+Q6. What is the maximum length array our program can sort?
+
+The maximum length array our program can sort is MAX_NUM, which is defined to be 100 in sort.h, so we can only sort up a max of 100 elements.
+
+Q7. What is the difference between incrementing int* and char* by 1 (i.e. ((int *)p)+1) vs ((char *)p)+1))?
+
+When incrementing pointer types, C automatically adjusts for the size of the object the pointer is pointing to.
+This means that if p is 0x10 (byte address) to start with, and an integer is 4 bytes but a char is 1 byte,
+after both given operations are performed, the result of the integer pointer will be 0x14 while the result
+of the char pointer will be 0x11.
+
+Q8. Are the input arrays passed by reference or value to merge_sort?
+
+The input arrays passed to merge_sort are passed by reference: the values passed directly to merge_sort are merely pointers to the starting memory
+locations of the arrays.
+
+Q9. What is the difference between #include "header.h" and #include <header.h>?
+
+The exact difference depends on the compiler and standard of C you are using (the C standard mostly just says
+they are implementation defined), but generally (and in GCC) the "" syntax will first search the "current"
+folder (the folder that contains the C source file that is currently being processed) for a file by the name
+given, and then fall back to search implied by the <> syntax. The <> syntax searches through the command-line
+given "-I" directories, then the standard system header directories (and any other configured directories). 
+
+
+Q10. Use your justifytext script to justify this writeup (after completing it) to a length of 80 characters.

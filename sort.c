@@ -61,9 +61,17 @@ main(int argc, char **argv)
 #endif
 
 /*
- * Sorts the input array in the defined direction. The result will be placed
- * into the output array, and the data in the input array will put into an
- * undetermined state.
+ * Sorts the integers in one array and outputs the sorted integers in another
+ * array. The direction of the sort is defined by the COMPARATOR macro which
+ * is determined by the presence of DSC or ASC. If DSC is present, the list
+ * is sorted in descending order, otherwise it is sorted in ascending order.
+ *
+ * Inputs:
+ *   input_array - Array containing integers to be sorted
+ *   output_array - Array to place sorted integers in
+ *   num - Number of elements in input array
+ * Returns: Nothing
+ * Modifies: input_array is left in an undefined state.
  */
 void 
 merge_sort(int input_array[], int output_array[], int num)
